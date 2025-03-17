@@ -19,7 +19,11 @@ namespace TodoList2
             LoadTodoList();
 
             UpdateStatusBar();
+
+            
         }
+
+
 
         // ✅ 신규 버튼 (새 창 열기)
         private void btnNew_Click(object sender, EventArgs e)
