@@ -1,10 +1,9 @@
-﻿using TodoList2.Models;
-using TodoList2.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
-using System.Net.Http;
-using Newtonsoft.Json.Linq;
+using TodoList2.Data;
+using TodoList2.Models;
 
 namespace TodoList2
 {
@@ -21,32 +20,20 @@ namespace TodoList2
 
             UpdateStatusBar();
         }
-        
-        private void btnSave_Click(object sender, EventArgs e)
+
+        // ✅ 신규 버튼 (새 창 열기)
+        private void btnNew_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtTodo.Text))
+            var formNewTodo = new FormNewTodo();
+            if (formNewTodo.ShowDialog() == DialogResult.OK)
             {
-                MessageBox.Show("할 일을 입력하세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                todoList.Add(formNewTodo.NewTodo);
+                DataManager.SaveData(todoList);  // 데이터 저장
+                LoadTodoList();  // 목록 새로 고침
             }
-
-            var newTodo = new TodoItem
-            {
-                Date = dateTimePicker.Value,
-                Title = txtTodo.Text,
-                Memo = richTextBoxMemo.Text,
-                IsDone = false,
-                ImageUrl = pictureBoxImage.ImageLocation
-            };
-
-            todoList.Add(newTodo);
-            DataManager.SaveData(todoList);
-            LoadTodoList();
-            ClearInput();
-
-            UpdateStatusBar();
         }
 
+        // ✅ 수정 버튼
         private void btnModify_Click(object sender, EventArgs e)
         {
             if (listViewTodo.SelectedItems.Count == 0)
@@ -62,13 +49,13 @@ namespace TodoList2
             selectedTodo.Title = txtTodo.Text;
             selectedTodo.Memo = richTextBoxMemo.Text;
             selectedTodo.IsDone = listViewTodo.Items[selectedIndex].Checked;
-            selectedTodo.ImageUrl = pictureBoxImage.ImageLocation;
+            selectedTodo.ImageUrl = pictureBoxImage.ImageLocation ?? null;
 
-            DataManager.SaveData(todoList);
-            LoadTodoList();
-            ClearInput();
+            DataManager.SaveData(todoList);  // 데이터 저장
+            LoadTodoList();  // 목록 새로 고침
         }
 
+        // ✅ 삭제 버튼
         private void btnDelete_Click(object sender, EventArgs e)
         {
             if (listViewTodo.SelectedItems.Count == 0)
@@ -80,63 +67,85 @@ namespace TodoList2
             var selectedIndex = listViewTodo.SelectedItems[0].Index;
             todoList.RemoveAt(selectedIndex);
 
-            DataManager.SaveData(todoList);
-            LoadTodoList();
-            ClearInput();
+            pictureBoxImage.Image = null; // 선택 항목 삭제 시 이미지 초기화
+            DataManager.SaveData(todoList);  // 데이터 저장
+            LoadTodoList();  // 목록 새로 고침
         }
 
-        private void LoadTodoList()
+        // ✅ 체크박스 상태 변경 시 저장
+        private void listViewTodo_ItemChecked(object sender, ItemCheckedEventArgs e)
+        {
+            if (isLoading) return;
+
+            var index = e.Item.Index;
+            if (index >= 0 && index < todoList.Count)
+            {
+                todoList[index].IsDone = e.Item.Checked;
+                DataManager.SaveData(todoList);  // 데이터 저장
+                UpdateStatusBar();
+            }
+        }
+
+        // ✅ 할 일 목록 로드
+        private void LoadTodoList(bool isFiltered = false)
         {
             isLoading = true;
 
             listViewTodo.Items.Clear();
+            listViewTodo.CheckBoxes = true;
             listViewTodo.Columns.Clear();
 
-            listViewTodo.CheckBoxes = true;
-            listViewTodo.Columns.Add("완료", 50);
+            listViewTodo.Columns.Add("상태", 50);
             listViewTodo.Columns.Add("날짜", 100);
             listViewTodo.Columns.Add("할 일", 200);
             listViewTodo.Columns.Add("메모", 250);
             listViewTodo.FullRowSelect = true;
 
-            foreach (var todo in todoList)
-            {
-                var item = new ListViewItem
-                {
-                    Checked = todo.IsDone
-                };
+            var list = isFiltered
+                ? todoList.Where(todo => todo.Date.Date == dateTimePicker.Value.Date)
+                : todoList;
 
+            foreach (var todo in list)
+            {
+                var item = new ListViewItem();
+                item.Checked = todo.IsDone;
                 item.SubItems.Add(todo.Date.ToString("yyyy-MM-dd"));
                 item.SubItems.Add(todo.Title);
                 item.SubItems.Add(todo.Memo);
-
                 listViewTodo.Items.Add(item);
             }
 
             isLoading = false;
-
             UpdateStatusBar();
         }
 
-        private void ClearInput()
+        // ✅ 상태 바 업데이트
+        private void UpdateStatusBar()
         {
-            dateTimePicker.Value = DateTime.Now;
-            txtTodo.Clear();
-            richTextBoxMemo.Clear();
-            pictureBoxImage.Image = null;
+            int completeCount = listViewTodo.Items.Cast<ListViewItem>().Count(item => item.Checked);
+            int totalCount = listViewTodo.Items.Count;
+
+            toolStripStatusLabelComplete.Text = $"완료: {completeCount}";
+            toolStripStatusLabelIncomplete.Text = $"미완료: {totalCount - completeCount}";
+            toolStripStatusLabelTotal.Text = $"전체: {totalCount}";
         }
 
+        // ✅ 리스트에서 항목 선택 시 데이터 채우기
         private void listViewTodo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (listViewTodo.SelectedItems.Count > 0)
+            if (listViewTodo.SelectedItems.Count == 0) return;
+
+            var selectedIndex = listViewTodo.SelectedItems[0].Index;
+            if (selectedIndex >= 0 && selectedIndex < todoList.Count)
             {
-                var selectedIndex = listViewTodo.SelectedItems[0].Index;
                 var selectedTodo = todoList[selectedIndex];
 
                 dateTimePicker.Value = selectedTodo.Date;
                 txtTodo.Text = selectedTodo.Title;
                 richTextBoxMemo.Text = selectedTodo.Memo;
+                listViewTodo.Items[selectedIndex].Checked = selectedTodo.IsDone;
 
+                // ✅ 이미지 로드
                 if (!string.IsNullOrEmpty(selectedTodo.ImageUrl))
                 {
                     pictureBoxImage.Load(selectedTodo.ImageUrl);
@@ -147,65 +156,5 @@ namespace TodoList2
                 }
             }
         }
-
-        private void listViewTodo_ItemChecked(object sender, ItemCheckedEventArgs e)
-        {
-            if (isLoading) return;
-
-            var currentIndex = e.Item.Index;
-            if (currentIndex < 0 || currentIndex >= todoList.Count) return;
-
-            todoList[currentIndex].IsDone = e.Item.Checked;
-        }
-
-        private async void btnSearchImage_Click(object sender, EventArgs e)
-        {
-            string query = txtSearchImage.Text;
-            if (string.IsNullOrWhiteSpace(query))
-            {
-                MessageBox.Show("검색어를 입력하세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            string url = $"https://openapi.naver.com/v1/search/image?query={Uri.EscapeDataString(query)}";
-
-            using (HttpClient client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Add("X-Naver-Client-Id", "UeLcKSxvOOLId3jXMAct");
-                client.DefaultRequestHeaders.Add("X-Naver-Client-Secret", "ycgoxQ1f5o");
-
-                try
-                {
-                    var response = await client.GetStringAsync(url);
-                    var json = JObject.Parse(response);
-                    var imageUrl = json["items"]?[0]?["thumbnail"]?.ToString();
-
-                    if (!string.IsNullOrEmpty(imageUrl))
-                    {
-                        pictureBoxImage.Load(imageUrl);
-                    }
-                    else
-                    {
-                        MessageBox.Show("이미지를 찾을 수 없습니다.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"오류 발생: {ex.Message}", "에러", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        private void UpdateStatusBar()
-        {
-            int completeCount = listViewTodo.Items.Cast<ListViewItem>().Count(item => item.Checked);
-            int totalCount = listViewTodo.Items.Count;
-            int incompleteCount = totalCount - completeCount;
-
-            toolStripStatusLabelComplete.Text = $"완료: {completeCount}";
-            toolStripStatusLabelIncomplete.Text = $"미완료: {incompleteCount}";
-            toolStripStatusLabelTotal.Text = $"전체: {totalCount}";
-        }
-
     }
 }

@@ -32,12 +32,10 @@
             dateTimePicker = new DateTimePicker();
             txtTodo = new TextBox();
             richTextBoxMemo = new RichTextBox();
-            btnSave = new Button();
+            btnNew = new Button();
             btnModify = new Button();
             btnDelete = new Button();
             pictureBoxImage = new PictureBox();
-            txtSearchImage = new TextBox();
-            btnSearchImage = new Button();
             statusStrip = new StatusStrip();
             toolStripStatusLabelComplete = new ToolStripStatusLabel();
             toolStripStatusLabelIncomplete = new ToolStripStatusLabel();
@@ -52,7 +50,7 @@
             listViewTodo.FullRowSelect = true;
             listViewTodo.Location = new Point(12, 12);
             listViewTodo.Name = "listViewTodo";
-            listViewTodo.Size = new Size(611, 247);
+            listViewTodo.Size = new Size(611, 153);
             listViewTodo.TabIndex = 0;
             listViewTodo.UseCompatibleStateImageBehavior = false;
             listViewTodo.View = View.Details;
@@ -61,39 +59,39 @@
             // 
             // dateTimePicker
             // 
-            dateTimePicker.Location = new Point(12, 265);
+            dateTimePicker.Location = new Point(12, 171);
             dateTimePicker.Name = "dateTimePicker";
             dateTimePicker.Size = new Size(216, 23);
             dateTimePicker.TabIndex = 1;
             // 
             // txtTodo
             // 
-            txtTodo.Location = new Point(234, 265);
+            txtTodo.Location = new Point(234, 171);
             txtTodo.Name = "txtTodo";
             txtTodo.Size = new Size(389, 23);
             txtTodo.TabIndex = 2;
             // 
             // richTextBoxMemo
             // 
-            richTextBoxMemo.Location = new Point(234, 294);
+            richTextBoxMemo.Location = new Point(234, 200);
             richTextBoxMemo.Name = "richTextBoxMemo";
-            richTextBoxMemo.Size = new Size(389, 124);
+            richTextBoxMemo.Size = new Size(389, 215);
             richTextBoxMemo.TabIndex = 3;
             richTextBoxMemo.Text = "";
             // 
-            // btnSave
+            // btnNew
             // 
-            btnSave.Location = new Point(386, 422);
-            btnSave.Name = "btnSave";
-            btnSave.Size = new Size(75, 23);
-            btnSave.TabIndex = 4;
-            btnSave.Text = "저장";
-            btnSave.UseVisualStyleBackColor = true;
-            btnSave.Click += btnSave_Click;
+            btnNew.Location = new Point(386, 421);
+            btnNew.Name = "btnNew";
+            btnNew.Size = new Size(75, 23);
+            btnNew.TabIndex = 4;
+            btnNew.Text = "신규";
+            btnNew.UseVisualStyleBackColor = true;
+            btnNew.Click += btnNew_Click;
             // 
             // btnModify
             // 
-            btnModify.Location = new Point(467, 422);
+            btnModify.Location = new Point(467, 421);
             btnModify.Name = "btnModify";
             btnModify.Size = new Size(75, 23);
             btnModify.TabIndex = 5;
@@ -103,7 +101,7 @@
             // 
             // btnDelete
             // 
-            btnDelete.Location = new Point(548, 422);
+            btnDelete.Location = new Point(548, 421);
             btnDelete.Name = "btnDelete";
             btnDelete.Size = new Size(75, 23);
             btnDelete.TabIndex = 6;
@@ -113,33 +111,16 @@
             // 
             // pictureBoxImage
             // 
-            pictureBoxImage.Location = new Point(12, 294);
+            pictureBoxImage.Location = new Point(12, 200);
             pictureBoxImage.Name = "pictureBoxImage";
-            pictureBoxImage.Size = new Size(216, 122);
+            pictureBoxImage.Size = new Size(216, 216);
             pictureBoxImage.TabIndex = 7;
             pictureBoxImage.TabStop = false;
-            // 
-            // txtSearchImage
-            // 
-            txtSearchImage.Location = new Point(12, 423);
-            txtSearchImage.Name = "txtSearchImage";
-            txtSearchImage.Size = new Size(135, 23);
-            txtSearchImage.TabIndex = 8;
-            // 
-            // btnSearchImage
-            // 
-            btnSearchImage.Location = new Point(153, 422);
-            btnSearchImage.Name = "btnSearchImage";
-            btnSearchImage.Size = new Size(75, 23);
-            btnSearchImage.TabIndex = 9;
-            btnSearchImage.Text = "검색";
-            btnSearchImage.UseVisualStyleBackColor = true;
-            btnSearchImage.Click += btnSearchImage_Click;
             // 
             // statusStrip
             // 
             statusStrip.Items.AddRange(new ToolStripItem[] { toolStripStatusLabelComplete, toolStripStatusLabelIncomplete, toolStripStatusLabelTotal });
-            statusStrip.Location = new Point(0, 449);
+            statusStrip.Location = new Point(0, 448);
             statusStrip.Name = "statusStrip";
             statusStrip.RightToLeft = RightToLeft.Yes;
             statusStrip.Size = new Size(634, 22);
@@ -168,14 +149,12 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(634, 471);
+            ClientSize = new Size(634, 470);
             Controls.Add(statusStrip);
-            Controls.Add(btnSearchImage);
-            Controls.Add(txtSearchImage);
             Controls.Add(pictureBoxImage);
             Controls.Add(btnDelete);
             Controls.Add(btnModify);
-            Controls.Add(btnSave);
+            Controls.Add(btnNew);
             Controls.Add(richTextBoxMemo);
             Controls.Add(txtTodo);
             Controls.Add(dateTimePicker);
@@ -195,12 +174,10 @@
         private DateTimePicker dateTimePicker;
         private TextBox txtTodo;
         private RichTextBox richTextBoxMemo;
-        private Button btnSave;
+        private Button btnNew;
         private Button btnModify;
         private Button btnDelete;
         private PictureBox pictureBoxImage;
-        private TextBox txtSearchImage;
-        private Button btnSearchImage;
         private StatusStrip statusStrip;
         private ToolStripStatusLabel toolStripStatusLabelComplete;
         private ToolStripStatusLabel toolStripStatusLabelIncomplete;
