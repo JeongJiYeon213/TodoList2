@@ -8,8 +8,8 @@ namespace TodoList2
 {
     public partial class FormNewTodo : Form
     {
-        private const string NAVER_CLIENT_ID = "UeLcKSxvOOLId3jXMAct";
-        private const string NAVER_CLIENT_SECRET = "ycgoxQ1f5o";
+        private const string NAVER_CLIENT_ID = "";
+        private const string NAVER_CLIENT_SECRET = "";
         private const string IMAGE_SEARCH_URL = "https://openapi.naver.com/v1/search/image?query=";
 
         public TodoItem NewTodo { get; private set; }
